@@ -1,0 +1,234 @@
+#include <iostream>
+#include <string>
+#include <queue>
+#include <vector>
+#include <functional>
+
+using namespace std;
+
+
+
+class game
+     {
+     private:
+         int num;
+         int cand;
+         string **tour;
+         int cand_win;
+         int rest_game;
+     public:
+         template <size_t x,size_t y>
+         game(int num , int cand,string (&arry)[x][y])
+          {
+             this->num = num;
+             this->cand = cand;
+          
+             tour = new string*[num+1];
+             
+             for(int i =0 ; i<10;i++)
+                 tour[i] = new string [num+1];
+             
+             
+             for(int i=0;i<num;i++)
+                 for(int j=0;j<num;j++)
+                     tour[i][j]=arry[i][j];
+              
+              for(int i=0; i<num;i++)
+              {
+              
+                  if(i==cand)
+                      continue;
+                  
+                  if( tour[cand][i][0] == 'n'|| tour[cand][i][0] == 'w')
+                  {
+                      tour[cand][i][0]='w';
+                      tour[i][cand][0]='l';
+                      cand_win++;
+                  }
+                  if( tour[cand][i][1] == 'n'||tour[cand][i][1] == 'w')
+                  {
+                      tour[cand][i][1]='w';
+                      tour[i][cand][1]='l';
+                      cand_win++;
+                  }
+                  
+              }
+         }
+         
+         void test()
+         {
+             int rest_win[num];
+             int rest_n[num];
+           //cout how many game have the rest
+             
+             for(int i=0;i<num;i++)
+                 for(int j=0;j<num;j++)
+                 {
+                     
+                     
+                     
+                 if(tour[i][j][0]=='n')
+                   rest_game++;
+                     
+               
+                     
+                 if(tour[i][j][1]=='n')
+                   rest_game++;
+                 
+             
+                         
+                     
+                 }
+             rest_game/=2;
+             
+             
+             //int o=0;
+             
+             while (rest_game>0)
+             {
+                 
+            // check the unfinished game(rest_n) and the rest win
+                 for(int i=0;i<num;i++){
+                     rest_win[i]=0;
+                      rest_n[i]=0;
+                 }
+                 
+                 
+                 for(int i=0;i<num;i++)
+                     for(int j=0;j<num;j++)
+                     {
+                         if(tour[i][j][0]=='w')
+                             rest_win[i]++;
+             
+                         if(tour[i][j][0]=='n')
+                             rest_n[i]++;
+                         
+                         if(tour[i][j][1]=='w')
+                             rest_win[i]++;
+                         
+                         if(tour[i][j][1]=='n')
+                             rest_n[i]++;
+                 
+                     }
+                 
+                 rest_win[cand] = -10;
+                 
+                 
+                 // put the most winner and the he have the most rest game
+                 int tops=-1;
+                 int top=999 ;
+                 for(int i=0;i<num;i++)
+                 {
+                 
+                     if(rest_win[i]>tops){
+                         if(rest_n[i]==0)
+                             continue;
+                         tops = rest_win[i];
+                         top = i;
+                       
+                     }
+                     else if(rest_win[i]==tops)
+                     {
+                      
+                         
+                         if(rest_n[i]>rest_n[top])
+                         {
+                           
+                             top = i;
+                         }
+                     }
+                 
+                 
+                 }
+                 // put the most loser  and the he have the most rest game
+                 
+                 int botton = 1e9;
+                 int min = 1e9;
+                
+                 for(int i =0 ; i< num;i++)
+                     if(tour[top][i][0]=='n'||tour[top][i][1]=='n'){
+                         
+                         if(i == cand)
+                             continue;
+                         
+                         if(rest_win[i]<min)
+                         {
+                             min = rest_win[i];
+                             botton = i;
+                         }else if(rest_win[i]==min){
+                             if(rest_n[i]>rest_n[botton])
+                             {
+                               
+                                 botton = i;
+                                }
+
+                         }
+                     }
+               
+                     cout<<"test "<<top<<"   "<<botton<<endl;
+                // play game
+                 if(tour[top][botton][0]=='n')
+                 {
+                     tour[top][botton][0]='l';
+                     tour[botton][top][0]='w';
+                     
+                    // cout<<top<<"    "<<botton<<"    0"<<endl;
+                 }
+                 else if (tour[top][botton][1]=='n')
+                 {
+                     tour[top][botton][1]='l';
+                     tour[botton][top][1]='w';
+                    // cout<<top<<"    "<<botton<<"    1"<<endl;
+
+                 }
+           
+                 // cout<<endl;
+                 
+                 for(int i=0;i<num;i++){
+                     for(int j=0;j<num;j++)
+                     {
+                         
+                         cout<<tour[i][j]<<"  ";
+                         
+                     }
+                     cout<<endl;
+                 }
+                 
+                 cout<<endl;
+                 
+                 
+                 
+                 rest_game--;
+             }
+             // print out ans
+             for(int i=0;i<num;i++){
+                 for(int j=0;j<num;j++)
+                 {
+                   cout<<tour[i][j]<<"  ";
+                 }
+                 cout<<endl;
+             }
+         }
+     };
+int main ()
+{
+    
+    const int num = 5;
+    int cand = 0;
+   
+    string tour [num][num]  =
+    {
+    
+        {"//", "nn" , "ll" , "nn"   ,"nn"  },
+        {"nn", "//" , "ww" , "nn"   ,"nn"  },
+         {"ww", "ll" , "//" , "ww"   ,"ww"  },
+         {"nn", "nn" , "ll" , "//"   ,"nn"  },
+         {"nn", "nn" , "ll" , "nn"   ,"//"  }
+    };
+    
+    
+    game one (num , cand , tour);
+   one.test();
+
+
+}
